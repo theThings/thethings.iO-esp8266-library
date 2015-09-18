@@ -37,8 +37,8 @@ function createMQTTClient()
         checkConnection()
     end)
 
-    m:on("message", function(client, topic, message) 
-        print(topic .. ":" ) 
+    m:on("message", function(client, topic, message)
+        print(topic .. ":" )
         message = string.upper(message)
         message = string.gsub(message, " ", "")
         if string.find(message, "\"VALUE\":\"ON\"}") then
