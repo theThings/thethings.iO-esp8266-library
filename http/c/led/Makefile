@@ -3,7 +3,7 @@ CFLAGS = -I. -mlongcalls
 LDLIBS = -nostdlib -Wl,--start-group -lmain -lnet80211 -lwpa -llwip -lpp -lphy -Wl,--end-group -lgcc
 LDFLAGS = -Teagle.app.v6.ld
 
-ESPTOOL=/home/ferran/Workspace/thethings.io/esp8266/esp-open-sdk/esptool/esptool.py
+ESPTOOL=esptool.py
 
 led-0x00000.bin: led
 	$(ESPTOOL) elf2image $^
