@@ -4,11 +4,8 @@
 #include "os_type.h"
 
 #include "user_config.h"
-#include "user_interface.h"
 
-#include "c_types.h"
-#include "espconn.h"
-#include "mem.h"
+#include "thethingsio.h"
 
 #define led 2
 #define LOW 0
@@ -21,8 +18,7 @@ LOCAL os_timer_t network_timer;
 static void ICACHE_FLASH_ATTR networkSentCb(void *arg) {
 }
 
-static void ICACHE_FLASH_ATTR networkRecvCb(void *arg, char *data, unsigned short len) {
-    struct espconn *conn=(struct espconn *)arg;
+void ICACHE_FLASH_ATTR user_rcv(void *arg, char *data, unsigned short len) {
     if (os_strstr(data, "\"value\":1") > 10) {
         GPIO_OUTPUT_SET(led, LOW);
         os_printf("ON \n\r");
@@ -33,63 +29,13 @@ static void ICACHE_FLASH_ATTR networkRecvCb(void *arg, char *data, unsigned shor
     }
 }
 
-static void ICACHE_FLASH_ATTR networkConnectedCb(void *arg) {
-    struct espconn *conn=(struct espconn *)arg;
-
-    char data[1024];
-    os_sprintf(data,
-            "GET /v2/things/%s?keepAlive=%d HTTP/1.1\n"
-            "Host: api.thethings.io\n"
-            "Accept: application/json\n\n", TOKEN, KEEPALIVE);
-
-    sint8 d = espconn_sent(conn, data, strlen(data));
-
-    espconn_regist_recvcb(conn, networkRecvCb);
-}
-
-static void ICACHE_FLASH_ATTR networkReconCb(void *arg, sint8 err) {
-}
-
-static void ICACHE_FLASH_ATTR networkDisconCb(void *arg) {
-}
-
-static void ICACHE_FLASH_ATTR networkServerFoundCb(const char *name, ip_addr_t *ip, void *arg) {
-    static esp_tcp tcp;
-    struct espconn *conn=(struct espconn *)arg;
-
-    if (ip == NULL) {
-        os_printf("Nslookup failed: Trying again...\n");
-        network_init();
-    }
-
-    conn->type=ESPCONN_TCP;
-    conn->state=ESPCONN_NONE;
-    conn->proto.tcp=&tcp;
-    conn->proto.tcp->local_port=espconn_port();
-    conn->proto.tcp->remote_port=80;
-    os_memcpy(conn->proto.tcp->remote_ip, &ip->addr, 4);
-    espconn_regist_connectcb(conn, networkConnectedCb);
-    espconn_regist_disconcb(conn, networkDisconCb);
-    espconn_regist_reconcb(conn, networkReconCb);
-    espconn_regist_recvcb(conn, networkRecvCb);
-    espconn_regist_sentcb(conn, networkSentCb);
-    espconn_connect(conn);
-}
-
-void ICACHE_FLASH_ATTR network_start() {
-    static struct espconn conn;
-    static ip_addr_t ip;
-    os_printf("Looking up server...\n");
-    espconn_gethostbyname(&conn, "api.thethings.io", &ip, networkServerFoundCb);
-}
-
 void ICACHE_FLASH_ATTR network_check_ip(void) {
     struct ip_info ipconfig;
     os_timer_disarm(&network_timer);
     wifi_get_ip_info(STATION_IF, &ipconfig);
     if (wifi_station_get_connect_status() == STATION_GOT_IP && ipconfig.ip.addr != 0) {
         os_printf("IP found\n\r");
-        network_start();
+        thethingsio_subscribe(TOKEN, user_rcv);
     } else {
         os_printf("No IP found\n\r");
         os_timer_setfn(&network_timer, (os_timer_func_t *)network_check_ip, NULL);
