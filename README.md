@@ -2,6 +2,8 @@
 
 An extensive source of information about this module can be found [here](https://github.com/esp8266/esp8266-wiki/wiki)
 
+There is a README inside each library directory (libraries/{C,lua}) for the API Reference
+
 ## C
 
 To build and flash these examples, you will need to build the tool chain and libraries for the chip. We suggest to get them from the [esp-open-sdk](https://github.com/pfalcon/esp-open-sdk) project since it simplifies the process. After that, you just should enter the directory of the project you choose and run `make` and `make flash`.
