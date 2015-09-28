@@ -10,8 +10,15 @@ bool thethingsio_write_str(char const *token, char const *key, char const *value
 Send values to the specified token.
 
 ```
+void thethingsio_read(char const *token, char const *key, unsigned char limit, void (*callback)(void *arg, char *data, unsigned short size))
+```
+
+Read the last `limit` values of the specified key and token
+The first argument of the callback is the connection passed as a `struct espconn *`.
+
+```
 void thethingsio_subscribe(char const *token, void (*callback)(void *arg, char *data, unsigned short size))
 ```
 
 Subscribe to messages from the specified token.
-The first argument of the callback is the connection as a `struct espconn *`.
+The callback has the same form as the `thethingsio_read` one.
