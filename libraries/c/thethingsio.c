@@ -7,7 +7,7 @@
 #define QUEUE_SIZE 5
 
 #ifndef KEEPALIVE
-#define KEEIPALIVE 60000
+#define KEEPALIVE 60000
 #endif
 
 enum TTRequestType {
@@ -21,9 +21,10 @@ struct TTRequest {
     enum TTRequestType type;
     char token[48];
     char key[32];
+    unsigned char limit;
     int value_num;
     char value_str[128];
-    void (*subscribe_callback)(void *, char *, unsigned short);
+    void (*callback)(void *, char *, unsigned short);
 };
 
 ip_addr_t thethingsio_ip[QUEUE_SIZE];
@@ -76,6 +77,19 @@ static void ICACHE_FLASH_ATTR thethingsio_recv(void *arg, char *data, unsigned s
     os_printf("%s", data);
 }
 
+static void ICACHE_FLASH_ATTR thethingsio_send_read(void *arg) {
+    char data[1024];
+    os_sprintf(data,
+            "GET /v2/things/%s/resources/%s?limit=%d HTTP/1.1\n"
+            "Host: api.thethings.io\n"
+            "Accept: application/json\n\n", TTQueue[back].token, TTQueue[back].key, TTQueue[back].limit, KEEPALIVE);
+
+    struct espconn *conn = (struct espconn *)arg;
+    espconn_sent(conn, data, strlen(data));
+
+    back = (back + 1)%QUEUE_SIZE;
+}
+
 static void ICACHE_FLASH_ATTR thethingsio_server_found(const char *name, ip_addr_t *ip, void *arg) {
     if (ip == NULL) {
         os_printf("nslookup failed.\n");
@@ -98,7 +112,11 @@ static void ICACHE_FLASH_ATTR thethingsio_server_found(const char *name, ip_addr
             break;
         case SUBSCRIBE:
             espconn_regist_connectcb(conn, thethingsio_send_subscribe);
-            espconn_regist_recvcb(conn, TTQueue[back].subscribe_callback);
+            espconn_regist_recvcb(conn, TTQueue[back].callback);
+            break;
+        case READ:
+            espconn_regist_connectcb(conn, thethingsio_send_read);
+            espconn_regist_recvcb(conn, TTQueue[back].callback);
             break;
     }
 
@@ -125,7 +143,17 @@ bool thethingsio_write_str(char const *token, char const *key, char const *value
 
 void thethingsio_subscribe(char const *token, void (*callback)(void *, char *, unsigned short)) {
     TTQueue[front].type = SUBSCRIBE;
-    TTQueue[front].subscribe_callback = callback;
+    TTQueue[front].callback = callback;
+    os_sprintf(TTQueue[front].token, "%s", token);
+    espconn_gethostbyname(&thethingsio_conn[front], "api.thethings.io", &thethingsio_ip[front], thethingsio_server_found);
+    front = (front + 1)%QUEUE_SIZE;
+}
+
+void thethingsio_read(char const *token, char const *key, unsigned char limit, void (*callback)(void *, char *, unsigned short)) {
+    TTQueue[front].type = READ;
+    TTQueue[front].limit = limit;
+    TTQueue[front].callback = callback;
+    os_sprintf(TTQueue[front].key, "%s", key);
     os_sprintf(TTQueue[front].token, "%s", token);
     espconn_gethostbyname(&thethingsio_conn[front], "api.thethings.io", &thethingsio_ip[front], thethingsio_server_found);
     front = (front + 1)%QUEUE_SIZE;
