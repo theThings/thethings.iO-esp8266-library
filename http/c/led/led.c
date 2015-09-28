@@ -36,6 +36,7 @@ void ICACHE_FLASH_ATTR network_check_ip(void) {
     if (wifi_station_get_connect_status() == STATION_GOT_IP && ipconfig.ip.addr != 0) {
         os_printf("IP found\n\r");
         thethingsio_subscribe(TOKEN, user_rcv);
+        thethingsio_read(TOKEN, "led", 1, user_rcv);
     } else {
         os_printf("No IP found\n\r");
         os_timer_setfn(&network_timer, (os_timer_func_t *)network_check_ip, NULL);
