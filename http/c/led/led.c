@@ -14,6 +14,7 @@
 void ICACHE_FLASH_ATTR network_init();
 
 LOCAL os_timer_t network_timer;
+LOCAL os_timer_t subscribe_timer;
 
 static void ICACHE_FLASH_ATTR networkSentCb(void *arg) {
 }
@@ -29,14 +30,23 @@ void ICACHE_FLASH_ATTR user_rcv(void *arg, char *data, unsigned short len) {
     }
 }
 
+void ICACHE_FLASH_ATTR subscribe_timer_callback(void) {
+    if (!thethingsio_subscribe(TOKEN, user_rcv)) {
+        os_timer_setfn(&subscribe_timer, (os_timer_func_t *)subscribe_timer_callback, NULL);
+        os_timer_arm(&subscribe_timer, 1000, 0);
+    }
+}
+
 void ICACHE_FLASH_ATTR network_check_ip(void) {
     struct ip_info ipconfig;
     os_timer_disarm(&network_timer);
     wifi_get_ip_info(STATION_IF, &ipconfig);
     if (wifi_station_get_connect_status() == STATION_GOT_IP && ipconfig.ip.addr != 0) {
         os_printf("IP found\n\r");
-        thethingsio_subscribe(TOKEN, user_rcv);
         thethingsio_read(TOKEN, "led", 1, user_rcv);
+        os_timer_disarm(&subscribe_timer);
+        os_timer_setfn(&subscribe_timer, (os_timer_func_t *)subscribe_timer_callback, NULL);
+        os_timer_arm(&subscribe_timer, 1000, 0);
     } else {
         os_printf("No IP found\n\r");
         os_timer_setfn(&network_timer, (os_timer_func_t *)network_check_ip, NULL);
