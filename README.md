@@ -4,6 +4,18 @@ An extensive source of information about this module can be found [here](https:/
 
 There is a README inside each library directory (libraries/{C,lua}) for the API Reference
 
+## Schematics
+
+For the examples in this repository you should follow these schematics:
+
+Button example:
+
+<img src="img/example_button.png" alt="Button example" width="500px" />
+
+Led example:
+
+<img src="img/example_led.png" alt="Led example" width="500px" />
+
 ## C
 
 To build and flash these examples, you will need to build the tool chain and libraries for the chip. We suggest to get them from the [esp-open-sdk](https://github.com/pfalcon/esp-open-sdk) project since it simplifies the process. After that, you just should enter the directory of the project you choose and run `make` and `make flash`.
