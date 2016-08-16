@@ -1,7 +1,0 @@
-#ifndef USER_CONFIG_H
-#define USER_CONFIG_H
-
-#define SSID "YOUR SSID"
-#define SSID_PASSWORD "YOUR SSID PASSWORD"
-
-#endif // USER_CONFIG_H
