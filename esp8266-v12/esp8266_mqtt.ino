@@ -3,11 +3,11 @@
 
 // Update these with values suitable for your network.
 
-const char* ssid = "thethings.iO - HQ";
-const char* password = "ilovethethingsioTTIO007";
+const char* ssid = "SSID";
+const char* password = "PASSWORD";
 const char* mqtt_server = "mqtt.thethings.io";
 
-#define TOKEN "uFOF3N-04SnUf2TM9zWVu8WAy3Ke2GBns_LCwE_9Sas"
+#define TOKEN "YOURTOKEN"
 
 String topic = "v2/things/" + String(TOKEN);
 
