@@ -17,3 +17,11 @@ Add values and send them using the addValue (1 or +) and send function.
 addValue("value", 5); 
 send();
 ```
+##esp8266 arduino library 
+
+- Install Arduino 1.6.8 (or greater) from the Arduino website.
+- Start Arduino and open Preferences window.
+- Enter http://arduino.esp8266.com/stable/package_esp8266com_index.json into Additional Board Manager URLs field. You can add multiple URLs, separating them with commas.
+- Open Boards Manager from Tools > Board menu and install esp8266 platform (and don't forget to select your ESP8266 board from Tools > Board menu after installation).
+
+Before flashing the firmware to the esp, remember to put the board in flash mode. From Tools, select the board acording to your vendor (Wemos D1 mini in our case), select 115200 as the speed and select the proper port.
