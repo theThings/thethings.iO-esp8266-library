@@ -12,11 +12,13 @@ const char* password = "wifipassword";
 #define TOKEN "YOURTOKEN"
 ```
 
-Add values and send them using the addValue (1 or +) and send function.
+Add values and send them using the addValue (1 or +) and send function. 
 ```
 addValue("value", 5); 
 send();
 ```
+Actually, the mqtt buffer is limited by 128 bytes. If you want to send multiple values, change the ```#define MQTT_MAX_PACKET_SIZE 128``` (PubSubClient.h file, inside the arduino PubSubClient library) to a bigger number (256, 512...).
+
 ##esp8266 arduino library 
 
 - Install Arduino 1.6.8 (or greater) from the Arduino website.
