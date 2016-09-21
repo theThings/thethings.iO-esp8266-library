@@ -16,32 +16,39 @@ PubSubClient client(espClient);
 long lastMsg = 0;
 
 int cont = 0;
-
-String msg ="{\"values\":[";
-
-void addValue(String key, String value) {
-    if (cont == 0) msg += "{\"key\":\""+key+"\",\"value\":\""+value+"\"}";
-    else msg +=",{\"key\":\""+key+"\",\"value\":\""+value+"\"}";
-    cont++;
-}
+bool firstValue = true;
+String message ="";
 
 void addValue(String key, int value) {
-    if (cont == 0) msg += "{\"key\":\""+key+"\",\"value\":\""+value+"\"}";
-    else msg += ",{\"key\":\""+key+"\",\"value\":\""+value+"\"}";
-    cont++;
+  if (firstValue == false) message.concat(",");
+  message.concat("{\"key\":\"" + key + "\",\"value\": \"" + value + "\"}");
+  firstValue = false;
+}
+
+void addValue(String key, String value) {
+  if (firstValue == false) message.concat(",");
+  message.concat("{\"key\":\"" + key + "\",\"value\": \"" + value + "\"}");
+  firstValue = false;
 }
 
 void addValue(String key, float value) {
-    if (cont == 0) msg += "{\"key\":\""+key+"\",\"value\":\""+value+"\"}";
-    else msg += ",{\"key\":\""+key+"\",\"value\":\""+value+"\"}";
-    cont++;
+  if (firstValue == false) message.concat(",");
+  message.concat("{\"key\":\"" + key + "\",\"value\": \"" + String(value, 2) + "\"}"); // converted float to string with 2 decimal places
+  firstValue = false;
 }
 
 void send() {
-    msg += "]}";
-    client.publish((char*)topic.c_str(),(char*)msg.c_str());
-    msg = "{\"values\":[";
-    cont = 0;
+  String toSend = "{\"values\":[" + message + "]}";
+  Serial.printf(toSend.c_str());
+  if (client.publish((char*)topic.c_str(), (char*)toSend.c_str())) {
+    message.remove(0);
+    firstValue = true;
+    Serial.println("Published");
+  }
+  else {
+    Serial.println("Error publishing");
+    //message.remove(0);
+  }
 }
 
 void setup() {
