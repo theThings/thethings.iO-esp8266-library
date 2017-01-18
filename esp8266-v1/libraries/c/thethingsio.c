@@ -67,7 +67,7 @@ static void ICACHE_FLASH_ATTR thethingsio_send_write(void *arg) {
     char data[1024];
     os_sprintf(data,
             "POST /v2/things/%s HTTP/1.1\n"
-            "Host: api.thethings.io\n"
+            "Host: api.devices.thethings.io\n"
             "Accept: application/json\n"
             "Content-Type: application/json\n"
             "Content-Length: %d\n\n"
@@ -84,7 +84,7 @@ static void ICACHE_FLASH_ATTR thethingsio_send_subscribe(void *arg) {
     char data[1024];
     os_sprintf(data,
             "GET /v2/things/%s?keepAlive=%d HTTP/1.1\n"
-            "Host: api.thethings.io\n"
+            "Host: api.devices.thethings.io\n"
             "Accept: application/json\n\n", thethings_request.token, KEEPALIVE);
 
     struct espconn *conn = (struct espconn *)arg;
@@ -97,7 +97,7 @@ static void ICACHE_FLASH_ATTR thethingsio_send_read(void *arg) {
     char data[1024];
     os_sprintf(data,
             "GET /v2/things/%s/resources/%s?limit=%d HTTP/1.1\n"
-            "Host: api.thethings.io\n"
+            "Host: api.devices.thethings.io\n"
             "Accept: application/json\n\n", thethings_request.token, thethings_request.proto.read.key, thethings_request.proto.read.limit, KEEPALIVE);
 
     struct espconn *conn = (struct espconn *)arg;
@@ -152,7 +152,7 @@ bool ICACHE_FLASH_ATTR thethingsio_write_num(char const *token, char const *key,
     os_sprintf(thethings_request.proto.write_num.key, "%s", key);
     os_sprintf(thethings_request.token, "%s", token);
     thethings_request.proto.write_num.value = value;
-    espconn_gethostbyname(&thethingsio_conn, "api.thethings.io", &thethingsio_ip, thethingsio_server_found);
+    espconn_gethostbyname(&thethingsio_conn, "api.devices.thethings.io", &thethingsio_ip, thethingsio_server_found);
     return true;
 }
 
@@ -163,7 +163,7 @@ bool ICACHE_FLASH_ATTR thethingsio_write_str(char const *token, char const *key,
     os_sprintf(thethings_request.proto.write_str.key, "%s", key);
     os_sprintf(thethings_request.token, "%s", token);
     os_sprintf(thethings_request.proto.write_str.value, "%s", value);
-    espconn_gethostbyname(&thethingsio_conn, "api.thethings.io", &thethingsio_ip, thethingsio_server_found);
+    espconn_gethostbyname(&thethingsio_conn, "api.devices.thethings.io", &thethingsio_ip, thethingsio_server_found);
     return true;
 }
 
@@ -173,7 +173,7 @@ bool ICACHE_FLASH_ATTR thethingsio_subscribe(char const *token, void (*callback)
     thethings_request.type = SUBSCRIBE;
     thethings_request.proto.subscribe.callback = callback;
     os_sprintf(thethings_request.token, "%s", token);
-    espconn_gethostbyname(&thethingsio_conn, "api.thethings.io", &thethingsio_ip, thethingsio_server_found);
+    espconn_gethostbyname(&thethingsio_conn, "api.devices.thethings.io", &thethingsio_ip, thethingsio_server_found);
     return true;
 }
 
@@ -185,7 +185,7 @@ bool ICACHE_FLASH_ATTR thethingsio_read(char const *token, char const *key, unsi
     thethings_request.proto.read.callback = callback;
     os_sprintf(thethings_request.proto.read.key, "%s", key);
     os_sprintf(thethings_request.token, "%s", token);
-    espconn_gethostbyname(&thethingsio_conn, "api.thethings.io", &thethingsio_ip, thethingsio_server_found);
+    espconn_gethostbyname(&thethingsio_conn, "api.devices.thethings.io", &thethingsio_ip, thethingsio_server_found);
     return true;
 }
 
