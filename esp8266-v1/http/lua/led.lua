@@ -4,7 +4,7 @@ function init()
     ssid = "SSID"
     password = "SSID PASSWORD"
 
-    server = "api.thethings.io"
+    server = "api.devices.thethings.io"
     keepalive = 30000
 
     led_pin = 4
